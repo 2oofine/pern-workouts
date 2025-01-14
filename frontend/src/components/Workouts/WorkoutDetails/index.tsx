@@ -41,7 +41,7 @@ const WorkoutDetails = (props: WorkoutDetailsProps) => {
         {workout.reps}
       </p>
       <p>
-        {formatDistanceToNow(new Date(workout.created_at ?? ""), {
+        {formatDistanceToNow(new Date(workout.updated_at ?? ""), {
           addSuffix: true,
         })}
       </p>

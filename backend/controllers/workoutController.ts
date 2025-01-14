@@ -136,7 +136,7 @@ export const updateWorkout = async (req: Request, res: Response) => {
 
   try {
     const workout = await pool.query(
-      "UPDATE workouts SET title = COALESCE($1, title), reps = COALESCE($2, reps), load = COALESCE($3, load) WHERE id = $4 RETURNING *",
+      "UPDATE workouts SET title = COALESCE($1, title), reps = COALESCE($2, reps), load = COALESCE($3, load), updated_at = NOW() WHERE id = $4 RETURNING *",
       [title, reps, load, trimmedId]
     );
 

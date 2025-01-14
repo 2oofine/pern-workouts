@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
-import { ResponseWorkout, Workout } from "../../../types/workout";
+import { useEffect, useRef, useState } from "react";
 import { useWorkoutsContext } from "../../../hooks/workouts/useWorkoutsContext";
+import { ResponseWorkout, Workout } from "../../../types/workout";
 
 const WorkoutForm = () => {
   const { createWorkout, getWorkoutData, updateWorkout } = useWorkoutsContext();
-  const [formDetails, setFormDetails] = useState<Partial<Workout>>({
-    title: "",
-    reps: 0,
-    load: 0,
-  });
+
+  // References for form inputs
+  const titleRef = useRef<HTMLInputElement>(null);
+  const loadRef = useRef<HTMLInputElement>(null);
+  const repsRef = useRef<HTMLInputElement>(null);
 
   const [error, setError] = useState<string | null>(null);
   const [emptyFields, setEmptyFields] = useState<string[]>([]);
@@ -19,18 +19,25 @@ const WorkoutForm = () => {
     const workoutData = getWorkoutData();
     if (workoutData && workoutData.id) {
       setIsEdit(true);
-      setFormDetails({
-        title: workoutData.title || "",
-        reps: workoutData.reps || 0,
-        load: workoutData.load || 0,
-      });
+      if (titleRef.current) titleRef.current.value = workoutData.title || "";
+      if (loadRef.current)
+        loadRef.current.value = workoutData.load?.toString() || "0";
+      if (repsRef.current)
+        repsRef.current.value = workoutData.reps?.toString() || "0";
     } else {
       setIsEdit(false);
+      if (titleRef.current) titleRef.current.value = "";
+      if (loadRef.current) loadRef.current.value = "0";
+      if (repsRef.current) repsRef.current.value = "0";
     }
   }, [getWorkoutData]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const formDataObj: Partial<Workout> = Object.fromEntries(
+      formData.entries()
+    );
     try {
       let response;
       if (isEdit) {
@@ -38,7 +45,7 @@ const WorkoutForm = () => {
           `http://localhost:4000/api/workouts/${getWorkoutData()?.id}`,
           {
             method: "PATCH",
-            body: JSON.stringify(formDetails),
+            body: JSON.stringify(formDataObj),
             headers: {
               "Content-Type": "application/json",
             },
@@ -47,7 +54,7 @@ const WorkoutForm = () => {
       } else {
         response = await fetch("http://localhost:4000/api/workouts", {
           method: "POST",
-          body: JSON.stringify(formDetails),
+          body: JSON.stringify(formDataObj),
           headers: {
             "Content-Type": "application/json",
           },
@@ -69,7 +76,9 @@ const WorkoutForm = () => {
         } else {
           createWorkout(json.data);
         }
-        setFormDetails({ title: "", reps: 0, load: 0 }); //reset form
+        if (titleRef.current) titleRef.current.value = "";
+        if (loadRef.current) loadRef.current.value = "0";
+        if (repsRef.current) repsRef.current.value = "0";
       }
     } catch (error) {
       console.log(error);
@@ -82,28 +91,22 @@ const WorkoutForm = () => {
       <label>Exercise Title:</label>
       <input
         type="text"
-        onChange={(e) =>
-          setFormDetails({ ...formDetails, title: e.target.value })
-        }
-        value={formDetails.title}
+        ref={titleRef}
+        name="title"
         className={emptyFields.includes("title") ? "error" : ""}
       />
       <label>Load (kg):</label>
       <input
         type="number"
-        onChange={(e) =>
-          setFormDetails({ ...formDetails, load: Number(e.target.value) })
-        }
-        value={formDetails.load}
+        ref={loadRef}
+        name="load"
         className={emptyFields.includes("load") ? "error" : ""}
       />
       <label>Reps</label>
       <input
         type="number"
-        onChange={(e) =>
-          setFormDetails({ ...formDetails, reps: Number(e.target.value) })
-        }
-        value={formDetails.reps}
+        ref={repsRef}
+        name="reps"
         className={emptyFields.includes("reps") ? "error" : ""}
       />
 
