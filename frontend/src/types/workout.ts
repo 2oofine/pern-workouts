@@ -16,6 +16,6 @@ export type ResponseWorkoutList = {
 export type ResponseWorkout = {
   status: string;
   data: Partial<Workout>;
-  error?: string;
+  error: string;
   emptyFields?: string[];
 };

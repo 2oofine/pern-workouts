@@ -28,6 +28,7 @@ export const WorkoutContext = createContext<WorkoutContextType>({
 export type WorkoutContextProviderProps = {
   children: React.ReactNode;
 };
+
 export const WorkoutContextProvider = ({
   children,
 }: WorkoutContextProviderProps) => {
