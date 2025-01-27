@@ -1,4 +1,4 @@
-import express from "express";
+import { Router } from "express";
 import {
   createWorkout,
   deleteWorkout,
@@ -7,7 +7,7 @@ import {
   updateWorkout,
 } from "../controllers/workoutController";
 
-const router = express.Router();
+const router = Router();
 
 // GET all workouts
 router.get("/", getWorkouts);

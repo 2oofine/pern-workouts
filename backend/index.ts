@@ -1,5 +1,6 @@
 import express, { Express, Request, Response, NextFunction } from "express";
 import workoutsRoute from "./routes/workouts";
+import userRoute from "./routes/user";
 import dotenv from "dotenv";
 import cors from "cors";
 
@@ -29,6 +30,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // ROUTES
 // workouts
 app.use("/api/workouts", workoutsRoute);
+
+// auth user
+app.use("/api/user", userRoute);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
