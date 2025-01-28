@@ -52,7 +52,11 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 
     const token = createToken(user.id);
-    res.status(200).json({ status: "success", token: token });
+    res.status(200).json({
+      status: "success",
+      token: token,
+      data: { id: user.id, email: user.email },
+    });
   } catch (error) {
     handleError(error, res);
   }
@@ -62,16 +66,6 @@ export const loginUser = async (req: Request, res: Response) => {
 export const signUpUser = async (req: Request, res: Response) => {
   const { email, password }: UserReq = req.body;
   try {
-    if (!validator.isEmail(email)) {
-      res.status(400).json({ error: "Invalid email format" });
-      return;
-    }
-
-    if (!validator.isStrongPassword(password)) {
-      res.status(400).json({ error: "Password not strong enough" });
-      return;
-    }
-
     let emptyFields: any = [];
 
     if (!email) {
@@ -86,6 +80,16 @@ export const signUpUser = async (req: Request, res: Response) => {
         error: "Please fill in all fields",
         emptyFields,
       });
+      return;
+    }
+
+    if (!validator.isEmail(email)) {
+      res.status(400).json({ error: "Invalid email format" });
+      return;
+    }
+
+    if (!validator.isStrongPassword(password)) {
+      res.status(400).json({ error: "Password not strong enough" });
       return;
     }
 

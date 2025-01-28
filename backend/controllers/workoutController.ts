@@ -3,12 +3,15 @@ import pool from "../db";
 import { Workout } from "../models/workout";
 import { WorkoutRequest } from "../types/workout";
 import { handleError } from "../utils/error";
+import { AuthenticatedRequest } from "../middleware/requireAuth";
 
 // GET all workouts
 export const getWorkouts = async (req: Request, res: Response) => {
+  const { user } = req as AuthenticatedRequest;
   try {
     const workouts = await pool.query(
-      "SELECT * FROM workouts ORDER BY created_at DESC"
+      "SELECT * FROM workouts WHERE user_id = $1 ORDER BY created_at DESC",
+      [user.id]
     );
     const workoutsResp: Workout[] = workouts.rows;
 
@@ -49,6 +52,7 @@ export const getWorkout = async (req: Request, res: Response) => {
 // CREATE a new workout
 export const createWorkout = async (req: Request, res: Response) => {
   const { title, reps, load }: WorkoutRequest = req.body;
+  const { user } = req as AuthenticatedRequest;
 
   let emptyFields = [];
   if (!title) {
@@ -70,8 +74,8 @@ export const createWorkout = async (req: Request, res: Response) => {
 
   try {
     const workout = await pool.query(
-      "INSERT INTO workouts (title, reps, load) VALUES ($1, $2, $3) RETURNING *",
-      [title, reps, load]
+      "INSERT INTO workouts (title, reps, load, user_id) VALUES ($1, $2, $3, $4) RETURNING *",
+      [title, reps, load, user.id]
     );
     const workoutResp: Workout = workout.rows[0];
     res.status(200).json({

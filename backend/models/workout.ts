@@ -5,4 +5,5 @@ export type Workout = {
   load: number;
   createdAt: Date;
   updatedAt: Date;
+  userId: string;
 };
