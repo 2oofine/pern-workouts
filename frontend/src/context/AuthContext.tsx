@@ -1,19 +1,19 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { createContext, useState } from "react";
-import { User } from "../types/auth";
+import { createContext, useEffect, useState } from "react";
+import { UserResponse } from "../types/auth";
 
 export type AuthContextType = {
-  user: Partial<User>;
-  login: (user: Partial<User>) => void;
-  signup: (user: Partial<User>) => void;
+  user: Partial<UserResponse>;
+  login: (user: Partial<UserResponse>) => void;
+  signup: (user: Partial<UserResponse>) => void;
   logout: () => void;
 };
 
 export const AuthContext = createContext<AuthContextType>({
   user: {},
-  login: (_user: Partial<User>) => {},
-  signup: (_user: Partial<User>) => {},
+  login: (_user: Partial<UserResponse>) => {},
+  signup: (_user: Partial<UserResponse>) => {},
   logout: () => {},
 });
 
@@ -22,13 +22,21 @@ export type AuthContextProviderProps = {
 };
 
 export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
-  const [authUser, setAuthUser] = useState<Partial<User>>({});
+  const [authUser, setAuthUser] = useState<Partial<UserResponse>>({});
 
-  const signup = (user: Partial<User>) => {
+  useEffect(() => {
+    //initial user when logged in
+    const userAuth = localStorage.getItem("user");
+    const jsonUser: UserResponse = userAuth ? JSON.parse(userAuth) : {};
+
+    login(jsonUser);
+  }, []);
+
+  const signup = (user: Partial<UserResponse>) => {
     setAuthUser(user);
   };
 
-  const login = (user: Partial<User>) => {
+  const login = (user: Partial<UserResponse>) => {
     setAuthUser(user);
   };
 

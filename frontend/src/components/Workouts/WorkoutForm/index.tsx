@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useWorkoutsContext } from "../../../hooks/workouts/useWorkoutsContext";
 import { ResponseWorkout, Workout } from "../../../types/workout";
+import { useAuthContext } from "../../../hooks/auth/useAuthContext";
 
 const WorkoutForm = () => {
   const { createWorkout, getWorkoutData, updateWorkout } = useWorkoutsContext();
+  const { user } = useAuthContext();
 
   // References for form inputs
   const titleRef = useRef<HTMLInputElement>(null);
@@ -34,6 +36,12 @@ const WorkoutForm = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!Object.keys(user).length) {
+      setError("You must be logged in");
+      return;
+    }
+
     const formData = new FormData(e.target as HTMLFormElement);
     const formDataObj: Partial<Workout> = Object.fromEntries(
       formData.entries()
@@ -48,6 +56,7 @@ const WorkoutForm = () => {
             body: JSON.stringify(formDataObj),
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${user.token}`,
             },
           }
         );
@@ -57,6 +66,7 @@ const WorkoutForm = () => {
           body: JSON.stringify(formDataObj),
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${user.token}`,
           },
         });
       }
